@@ -14,13 +14,13 @@ int Total_nodes(treetype*);
 int leaf_node(treetype*);
 int left_child(treetype*);
 int both_child(treetype*);
-int search_node(treetype*,int,int);
+void search_node(treetype*,int,int);
 treetype* delete(treetype*,int );
 treetype* minimum(treetype*);
 int main()
 {
     treetype *root=NULL,*temp;
-    int ch,key,num;
+    int ch,key,num,val;
     while(1)
     {
         printf(
@@ -41,7 +41,7 @@ int main()
             scanf("%d",&num);
             temp=create(num);
              if(root==NULL)
-               root=temp;
+            root=temp;
             else
             root=insert(root,temp);
             break;
@@ -57,24 +57,22 @@ int main()
             case 6: printf("Total nodes having both child = %d\n",both_child(root));
             break;
             case 7: printf("Enter a key to delete: ");
-            scanf("%d",&key);
-            root = delete(root,key);
+            scanf("%d",&val);
+            root = delete(root,val);
             break;
             case 8: printf("Enter a number: ");
             scanf("%d",&key);
-                int value = search_node(root,key,-1);
-                printf("Parent node is: %d",value);
-               
-            
+            search_node(root,key,root->data);
+            break;
         }
     }
 }
-int search_node(treetype*root,int key,int parent)
+void search_node(treetype*root,int key,int parent)
 {
     if(root==NULL)
-    return 0;
-    else if(root->data==key)
-        return parent;
+    return ;
+    if(root->data==key)
+    printf("Parent node is: %d\n",parent);
     else{
          search_node(root->left,key,root->data);
          search_node(root->right,key,root->data);
@@ -82,33 +80,32 @@ int search_node(treetype*root,int key,int parent)
 }
 treetype* delete(treetype*root,int key)
 {
-    if(root==NULL){
+    treetype*temp;
+    if(root==NULL)
         printf("List is empty\n");
-    }
     else if(key < root->data)
     root->left= delete(root->left,key);
     else if(key > root->data)
-    root->right= delete(root->left,key);
+    root->right= delete(root->right,key);
     else{
         // key found.
         // case1 : for no child
         if(root->left==NULL && root->right==NULL) {
         free(root);
-        root=NULL;}
+        root=NULL;
+        }
         else if(root->left==NULL){
-            treetype *temp;
             temp= root;    // for right child
             root=root->right;
             free(temp);
         }
         else if(root->right==NULL){
-            treetype *temp;
             temp=root;
             root= root->left; // for left child
             free(temp); }
         else
         {
-            treetype *temp = minimum(root->right); // for both childs
+            temp = minimum(root->right); // for both childs
             root->data= temp->data;
             root->right= delete(root->right,temp->data);
         }   
@@ -128,18 +125,21 @@ treetype* minimum(treetype*root)
 }
 int both_child(treetype*root)
 {
+    int count =0 ;
     if(root==NULL)
     return 0 ;
-    else if(root->left!=NULL && root->right!=NULL)
-    return 1 +  (both_child(root->left)+both_child(root->right));
+     if(root->left!=NULL && root->right!=NULL)
+     count=1;
+    return count +  both_child(root->left) + both_child(root->right);
 }
 int left_child(treetype*root)
 {
+    int count=0;
     if(root==NULL)
     return 0 ;
-    else if(root->left!=NULL && root->right==NULL)
-    return 1 ;
-    return left_child(root->left)+left_child(root->right);
+    if(root->left!=NULL && root->right==NULL)
+    count=1;
+    return count + left_child(root->left)+left_child(root->right);
 }
 int leaf_node(treetype*root)
 {
@@ -182,6 +182,7 @@ treetype* insert(treetype*root,treetype*temp)
         root->right=temp;
         else insert(root->right,temp);
     }
+    else printf("Duplicate data\n");
     return(root);
 }
 void inorder(treetype*root)
